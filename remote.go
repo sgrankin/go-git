@@ -513,8 +513,13 @@ func (r *Remote) addOrUpdateReferences(
 	// If it is not a wilcard refspec we can directly search for the reference
 	// in the references dictionary.
 	if !rs.IsWildcard() {
-		ref, ok := refsDict[rs.Src()]
-		if !ok {
+		var ref *plumbing.Reference
+		if rs.IsExactSHA1() {
+			ref = plumbing.NewHashReference(plumbing.ReferenceName(rs.Src()), plumbing.NewHash(rs.Src()))
+		} else {
+			ref = refsDict[rs.Src()]
+		}
+		if ref == nil {
 			return nil
 		}
 
